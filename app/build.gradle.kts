@@ -7,6 +7,10 @@ android {
     namespace = "com.group4.expensetracker"
     compileSdk {
         version = release(36)
+
+        buildFeatures {
+            viewBinding = true
+        }
     }
 
     defaultConfig {
@@ -47,3 +51,4 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
 }
+

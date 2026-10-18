@@ -1,3 +1,6 @@
 <resources>
     <string name="app_name">ExpenseTracker</string>
+    <string name="total_spending">Total Spending</string>
+    <string name="add_expense">Add Expense</string>
+    <string name="no_expenses">No expenses yet. Tap + to add one.</string>
 </resources>
