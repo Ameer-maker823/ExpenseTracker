@@ -3,4 +3,17 @@
     <string name="total_spending">Total Spending</string>
     <string name="add_expense">Add Expense</string>
     <string name="no_expenses">No expenses yet. Tap + to add one.</string>
+    <string name="title_add_expense">Add Expense</string>
+    <string name="hint_amount">Amount</string>
+    <string name="hint_description">Description</string>
+    <string name="hint_date">Date</string>
+    <string name="label_category">Category</string>
+    <string name="btn_save">Save</string>
+
+    <string-array name="categories">
+        <item>Food</item>
+        <item>Travel</item>
+        <item>Shopping</item>
+        <item>Bills</item>
+    </string-array>
 </resources>
