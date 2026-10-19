@@ -14,6 +14,8 @@ import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import android.view.View
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
 class AddExpenseActivity : AppCompatActivity() {
 
@@ -37,6 +39,8 @@ class AddExpenseActivity : AppCompatActivity() {
         binding.etDate.setText(dateFormat.format(Date(selectedDate)))
         binding.etDate.setOnClickListener { showDatePicker() }
         binding.btnSave.setOnClickListener { saveExpense() }
+
+        binding.btnDelete.setOnClickListener { confirmDelete() }
 
         val expenseId = intent.getIntExtra(EXTRA_EXPENSE_ID, -1)
         if (expenseId != -1) loadExpense(expenseId)
@@ -93,7 +97,24 @@ class AddExpenseActivity : AppCompatActivity() {
             binding.etDescription.setText(expense.description)
             binding.etDate.setText(dateFormat.format(Date(expense.date)))
             binding.btnSave.setText(R.string.btn_update)
+            binding.btnDelete.visibility = View.VISIBLE
         }
+    }
+
+    private fun confirmDelete() {
+        val expense = editingExpense ?: return
+        MaterialAlertDialogBuilder(this)
+            .setTitle(R.string.delete_title)
+            .setMessage(R.string.delete_message)
+            .setNegativeButton(R.string.cancel, null)
+            .setPositiveButton(R.string.btn_delete) { _, _ ->
+                lifecycleScope.launch {
+                    AppDatabase.getInstance(applicationContext).expenseDao().delete(expense)
+                    Toast.makeText(this@AddExpenseActivity, "Expense deleted", Toast.LENGTH_SHORT).show()
+                    finish()
+                }
+            }
+            .show()
     }
     companion object {
         const val EXTRA_EXPENSE_ID = "expense_id"
