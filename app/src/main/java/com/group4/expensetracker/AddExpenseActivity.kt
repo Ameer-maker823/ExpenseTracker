@@ -19,6 +19,8 @@ class AddExpenseActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityAddExpenseBinding
     private var selectedDate: Long = System.currentTimeMillis()
+
+    private var editingExpense: Expense? = null
     private val dateFormat = SimpleDateFormat("dd MMM yyyy", Locale.getDefault())
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -35,6 +37,9 @@ class AddExpenseActivity : AppCompatActivity() {
         binding.etDate.setText(dateFormat.format(Date(selectedDate)))
         binding.etDate.setOnClickListener { showDatePicker() }
         binding.btnSave.setOnClickListener { saveExpense() }
+
+        val expenseId = intent.getIntExtra(EXTRA_EXPENSE_ID, -1)
+        if (expenseId != -1) loadExpense(expenseId)
     }
 
     private fun showDatePicker() {
@@ -56,6 +61,7 @@ class AddExpenseActivity : AppCompatActivity() {
         }
 
         val expense = Expense(
+            id = editingExpense?.id ?: 0,
             amount = amount,
             category = binding.spCategory.selectedItem.toString(),
             description = binding.etDescription.text.toString().trim(),
@@ -63,9 +69,33 @@ class AddExpenseActivity : AppCompatActivity() {
         )
 
         lifecycleScope.launch {
-            AppDatabase.getInstance(applicationContext).expenseDao().insert(expense)
-            Toast.makeText(this@AddExpenseActivity, "Expense saved", Toast.LENGTH_SHORT).show()
+            val dao = AppDatabase.getInstance(applicationContext).expenseDao()
+            if (editingExpense != null) {
+                dao.update(expense)
+                Toast.makeText(this@AddExpenseActivity, "Expense updated", Toast.LENGTH_SHORT).show()
+            } else {
+                dao.insert(expense)
+                Toast.makeText(this@AddExpenseActivity, "Expense saved", Toast.LENGTH_SHORT).show()
+            }
             finish()
         }
+    }
+
+    private fun loadExpense(id: Int) {
+        lifecycleScope.launch {
+            val dao = AppDatabase.getInstance(applicationContext).expenseDao()
+            val expense = dao.getExpenseById(id) ?: return@launch
+            editingExpense = expense
+            selectedDate = expense.date
+            binding.etAmount.setText(expense.amount.toString())
+            val categories = resources.getStringArray(R.array.categories)
+            binding.spCategory.setSelection(categories.indexOf(expense.category).coerceAtLeast(0))
+            binding.etDescription.setText(expense.description)
+            binding.etDate.setText(dateFormat.format(Date(expense.date)))
+            binding.btnSave.setText(R.string.btn_update)
+        }
+    }
+    companion object {
+        const val EXTRA_EXPENSE_ID = "expense_id"
     }
 }
