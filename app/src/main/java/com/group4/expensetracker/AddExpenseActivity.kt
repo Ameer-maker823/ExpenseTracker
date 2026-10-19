@@ -36,6 +36,8 @@ class AddExpenseActivity : AppCompatActivity() {
             insets
         }
 
+        selectedDate = savedInstanceState?.getLong("selected_date", selectedDate) ?: selectedDate
+
         binding.etDate.setText(dateFormat.format(Date(selectedDate)))
         binding.etDate.setOnClickListener { showDatePicker() }
         binding.btnSave.setOnClickListener { saveExpense() }
@@ -43,7 +45,12 @@ class AddExpenseActivity : AppCompatActivity() {
         binding.btnDelete.setOnClickListener { confirmDelete() }
 
         val expenseId = intent.getIntExtra(EXTRA_EXPENSE_ID, -1)
-        if (expenseId != -1) loadExpense(expenseId)
+        if (expenseId != -1) loadExpense(expenseId, fillFields = savedInstanceState == null)
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putLong("selected_date", selectedDate)
     }
 
     private fun showDatePicker() {
@@ -85,19 +92,22 @@ class AddExpenseActivity : AppCompatActivity() {
         }
     }
 
-    private fun loadExpense(id: Int) {
+    private fun loadExpense(id: Int, fillFields: Boolean) {
         lifecycleScope.launch {
             val dao = AppDatabase.getInstance(applicationContext).expenseDao()
             val expense = dao.getExpenseById(id) ?: return@launch
             editingExpense = expense
-            selectedDate = expense.date
-            binding.etAmount.setText(expense.amount.toString())
-            val categories = resources.getStringArray(R.array.categories)
-            binding.spCategory.setSelection(categories.indexOf(expense.category).coerceAtLeast(0))
-            binding.etDescription.setText(expense.description)
-            binding.etDate.setText(dateFormat.format(Date(expense.date)))
             binding.btnSave.setText(R.string.btn_update)
             binding.btnDelete.visibility = View.VISIBLE
+
+            if (fillFields) {
+                selectedDate = expense.date
+                binding.etAmount.setText(expense.amount.toString())
+                val categories = resources.getStringArray(R.array.categories)
+                binding.spCategory.setSelection(categories.indexOf(expense.category).coerceAtLeast(0))
+                binding.etDescription.setText(expense.description)
+                binding.etDate.setText(dateFormat.format(Date(expense.date)))
+            }
         }
     }
 
