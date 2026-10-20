@@ -39,6 +39,10 @@ Built as **Task 2** of the Auspify Technologies Android Developer Internship.
 |---|---|---|
 | ![Sort](Screenshots/07_sort.png) | ![Update](Screenshots/08_update.png) | ![Delete](Screenshots/09_delete.png) |
 
+## Demo Video
+
+[Watch the demo](Demo/expense_demo.mp4)
+
 ## How to Run
 
 1. Clone the repository
